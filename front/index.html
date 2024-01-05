@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+    <style>
+        img{
+            height: 100px;
+            float: left;
+        }
+        .container{
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: column;
+        }
+    </style>
+    <script>
+        var pedido;
+        var nonce=0;
+        var cafe=0;
+        var factura=0;
+        var jugo=0;
+        function agregar(cosa){
+            if(cosa=="cafe"){
+                cafe++;
+                document.getElementById("cafe").innerHTML=cafe;
+            }
+            if(cosa=="factura"){
+                factura++;
+                document.getElementById("factura").innerHTML=factura;
+            }
+            if(cosa=="jugo"){
+                jugo++;
+                document.getElementById("jugo").innerHTML=jugo;
+            }
+        }
+
+        var web3;
+        var address;
+        var firma;
+
+        async function connect(){
+            web3 = new Web3(window.ethereum);
+            await ethereum.request({method:'eth_requestAccounts'});
+            address = await web3.eth.getAccounts().then( (res) => document.getElementById("account").innerHTML=res);
+            nonce = await getNonce();
+        } 
+
+        async function getNonce(){
+            var abi = [ { "inputs": [], "stateMutability": "nonpayable", "type": "constructor" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "allowance", "type": "uint256" }, { "internalType": "uint256", "name": "needed", "type": "uint256" } ], "name": "ERC20InsufficientAllowance", "type": "error" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" }, { "internalType": "uint256", "name": "balance", "type": "uint256" }, { "internalType": "uint256", "name": "needed", "type": "uint256" } ], "name": "ERC20InsufficientBalance", "type": "error" }, { "inputs": [ { "internalType": "address", "name": "approver", "type": "address" } ], "name": "ERC20InvalidApprover", "type": "error" }, { "inputs": [ { "internalType": "address", "name": "receiver", "type": "address" } ], "name": "ERC20InvalidReceiver", "type": "error" }, { "inputs": [ { "internalType": "address", "name": "sender", "type": "address" } ], "name": "ERC20InvalidSender", "type": "error" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" } ], "name": "ERC20InvalidSpender", "type": "error" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "owner", "type": "address" }, { "indexed": true, "internalType": "address", "name": "spender", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Approval", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": true, "internalType": "address", "name": "from", "type": "address" }, { "indexed": true, "internalType": "address", "name": "to", "type": "address" }, { "indexed": false, "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "Transfer", "type": "event" }, { "inputs": [ { "internalType": "address", "name": "owner", "type": "address" }, { "internalType": "address", "name": "spender", "type": "address" } ], "name": "allowance", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "spender", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "approve", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "account", "type": "address" } ], "name": "balanceOf", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "decimals", "outputs": [ { "internalType": "uint8", "name": "", "type": "uint8" } ], "stateMutability": "pure", "type": "function" }, { "inputs": [], "name": "name", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "", "type": "address" } ], "name": "nonce", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "symbol", "outputs": [ { "internalType": "string", "name": "", "type": "string" } ], "stateMutability": "view", "type": "function" }, { "inputs": [], "name": "totalSupply", "outputs": [ { "internalType": "uint256", "name": "", "type": "uint256" } ], "stateMutability": "view", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "transfer", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "from", "type": "address" }, { "internalType": "address", "name": "to", "type": "address" }, { "internalType": "uint256", "name": "value", "type": "uint256" } ], "name": "transferFrom", "outputs": [ { "internalType": "bool", "name": "", "type": "bool" } ], "stateMutability": "nonpayable", "type": "function" }, { "inputs": [ { "internalType": "address", "name": "_to", "type": "address" }, { "internalType": "uint256", "name": "_amount", "type": "uint256" }, { "internalType": "uint256", "name": "_nonce", "type": "uint256" }, { "internalType": "bytes", "name": "signature", "type": "bytes" } ], "name": "verify", "outputs": [ { "internalType": "address", "name": "", "type": "address" } ], "stateMutability": "nonpayable", "type": "function" } ];
+            var cotracAddress = "0x8409add3ebb0c34F09B97C9AeB2d2074cfE3E488";
+            var contract = await web3.eth.Contract(abi, cotracAddress);
+            var _nonce= await contract.methods.nonce(address);
+            return _nonce;
+        }
+
+        // amount, to, nonce
+
+        async function sign() {
+            let amount = cafe*10+factura*20+jugo*30;//document.getElementById("amount").value;
+            let to = "0x5B38Da6a701c568545dCfcB03FcB875f56beddC4";//document.getElementById("to").value;
+            let _nonce = nonce;
+
+            console.log(amount);
+            console.log(to);
+            console.log(_nonce);
+
+            let hash = await web3.utils.soliditySha3({type: 'uint', value: amount},{type: 'address', value: to},{type: 'uint', value: _nonce});
+            console.log("hash= "+hash);
+            firma = await web3.eth.personal.sign(hash.toString(),address.toString());
+            console.log("firma= "+firma);
+        }
+
+
+
+    </script>
+</head>
+<body>
+    <button onclick="connect()">Connect</button><div id="account"></div><br><br><br>
+
+    <input type="text" name="amount" id="amount" placeholder="amount">
+    <input type="text" name="to" id="to" placeholder="to">
+    <input type="text" name="nonce" id="nonce" placeholder="nonce">
+    <button  onclick="sign()">Pedir</button>
+
+    <br><br><br>
+    <div class="container">
+        <div class="item">
+            <img src="https://img.freepik.com/foto-gratis/deliciosos-granos-cafe-taza_23-2150691429.jpg?size=626&ext=jpg&ga=GA1.1.1687694167.1704153600&semt=sph" alt="cafe">
+            <img src="https://www.codesyntax.com/es/blog/como-medir-el-exito-de-tus-codigos-qr/@@images/88f0dea0-0385-42c6-8caf-cabbe13dd458.png" alt="qr" onclick="agregar('cafe')">
+            Precio: 10
+            <div id="cafe"></div>
+        </div>
+        <div class="item">
+            <img src="https://www.emiliodeik.cl/wp-content/uploads/2011/08/medialunas.jpg" alt="medias lunas">
+            <img src="https://www.codesyntax.com/es/blog/como-medir-el-exito-de-tus-codigos-qr/@@images/88f0dea0-0385-42c6-8caf-cabbe13dd458.png" alt="qr"  onclick="agregar('factura')">
+            Precio: 20
+            <div id="factura"></div>
+        </div>
+        <div class="item">
+            <img src="https://media.gq.com.mx/photos/5e31d403309f5700081fc82c/16:9/w_5087,h_2861,c_limit/GettyImages-909604746.jpg" alt="jugo">
+            <img src="https://www.codesyntax.com/es/blog/como-medir-el-exito-de-tus-codigos-qr/@@images/88f0dea0-0385-42c6-8caf-cabbe13dd458.png" alt="qr"  onclick="agregar('jugo')">
+            Precio: 30
+            <div id="jugo"></div>
+        </div>
+    </div>
+</body>
+</html>
